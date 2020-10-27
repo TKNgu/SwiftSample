@@ -24,9 +24,9 @@ func main() throws{
     let window = try Window(name: "Hello",
         rect: Rect(x: SDL_WINDOWPOS.CENTERED.rawValue, y: SDL_WINDOWPOS.CENTERED.rawValue, w: 640, h: 480),
         flag: SDL_WINDOW_SHOWN)
-    // let image = try Image(path: "/home/ngocpt/Downloads/06_extension_libraries_and_loading_other_image_formats/loaded.png")
-    //     .load()
-    //     .optimized(window: window)
+    let image = try Image(path: "/home/ngocpt/Downloads/pngegg.png")
+        .load()
+        .optimized(window: window)
 
     var quit = false
     var event: SDL_Event = SDL_Event(type: Uint32(0))
@@ -41,8 +41,8 @@ func main() throws{
     for index in 0...100 {
         points.append(Point(x: Int32(index), y: Int32(index * index / 100)))
     }
-    let lineMirror = LineMirror(source: RealVector(x: 100, y: 100),
-        vector: RealVector(x: 10, y: 10), t: 100, speed: 100)
+    let lineMirror = LineMirror(tail: RealVector(x: 0, y: 0),
+        speed: RealVector(x: 10, y: 10), leng: 50)
     var lastTime = SDL_GetTicks()
     while !quit {
         let startTime = SDL_GetTicks()
@@ -52,7 +52,7 @@ func main() throws{
             }
         }
         window.clean(color: Color(r: 0xff, g: 0xff, b: 0xff, a: 0xff))
-        // window.drawImage(image: image)
+        window.drawImage(image: image)
         drawView(window: window)
         window.setDrawColor(color: Color(r: 0x00, g: 0xFF, b: 0x00, a: 0x00))
         window.drawLines(points: points)
@@ -68,7 +68,9 @@ func main() throws{
         window.drawLineMirror(lineMirror: lineMirror)
         window.update()
         let runTime = SDL_GetTicks() - startTime
-        SDL_Delay(Uint32(1000 / 60) - runTime)
+        if Uint32(1000 / 60) > runTime {
+            SDL_Delay(Uint32(1000 / 60) - runTime)
+        }
     }
 } 
 

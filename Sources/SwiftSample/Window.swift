@@ -25,6 +25,7 @@ class Window {
             }
             let imgFlags: IMG_InitFlags = IMG_INIT_PNG
             if (IMG_Init(Int32(imgFlags.rawValue)) & Int32(imgFlags.rawValue)) == 0 {
+        print("Init")
                 throw SDLError.initImage
             }
         }
