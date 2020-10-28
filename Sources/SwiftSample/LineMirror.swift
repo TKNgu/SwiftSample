@@ -25,146 +25,138 @@ class RealVector {
     }
 }
 
-// class LineRealVector: RealVector {
-//     var t: Double
+class LineRealVector: RealVector {
+    var t: Double
 
-//     init(x: Double, y: Double, t: Double) {
-//         self.x = x
-//         self.y = y
-//         self.t = t
-//     } 
-// }
+    init(x: Double, y: Double, t: Double) {
+        self.t = t
+        super.init(x: x, y: y)
+    } 
+}
 
 class LineMirror {
-    var tail: RealVector
+    var tail: LineRealVector
     var tailSpeed: RealVector
-    var head: RealVector
+    var head: LineRealVector
     var headSpeed: RealVector
     var leng: Double
-    var bodys: [RealVector]
+    var bodys: [LineRealVector]
 
     init(tail: RealVector, speed: RealVector, leng: Double) {
-        self.tail = tail
-        self.tailSpeed = speed
+        self.tail = LineRealVector(x: tail.x, y: tail.y, t: 0.0)
+        self.tailSpeed = RealVector(x: speed.x, y: speed.y)
         self.leng = leng
-        self.head = RealVector(x: tail.x + speed.x * leng, y: tail.y + speed.y * leng)
-        self.headSpeed = speed
-        self.bodys = []
+        self.headSpeed = RealVector(x: speed.x, y: speed.y)
 
-        var (mirror, point, speed, flag) = findMirror(tail: self.tail, head: self.head, vector: self.headSpeed)
+        self.head = LineRealVector(x: tail.x + speed.x * leng,y: tail.y + speed.y * leng, t: leng)
+        self.bodys = []
+        var (mirror, point, speedNew, flag) = findMirror(tail: self.tail, head: self.head, vector: self.headSpeed)
         while flag {
             self.bodys.append(mirror)
             self.head = point
-            self.headSpeed = speed
-            (mirror, point, speed, flag) = findMirror(tail: self.bodys.last!, head: self.head, vector: self.headSpeed)
+            self.headSpeed = speedNew
+            (mirror, point, speedNew, flag) = findMirror(tail: mirror, head: point, vector: speedNew)
         }
     }
 
-    func findMirror(tail: RealVector, head: RealVector, vector: RealVector) -> (RealVector, RealVector, RealVector, Bool) {
-        var tmin = -1.0
+    func findMirror(tail: LineRealVector, head: LineRealVector, vector: RealVector) -> (LineRealVector, LineRealVector, RealVector, Bool) {
+        var index = 0
+        var tmin = 0.0
+        var flag = false
         if head.x > 640 {
-            let t = (640 - tail.x) / vector.x
-            if tmin < 0 {
-                tmin = t
-            } else if tmin > t {
-                tmin = t
-            }
+            tmin = (640 - tail.x) / vector.x
+            flag = true
+            index = 1
         }
         if head.x < 0 {
             let t = -tail.x / vector.x
-            if tmin < 0 {
+            if flag {
+                if tmin > t {
+                    tmin = t
+                    index = 2
+                }
+            } else {
                 tmin = t
-            } else if tmin > t {
-                tmin = t
+                flag = true
+                index = 2
             }
         }
         if head.y > 480 {
             let t = (480 - tail.y) / vector.y
-            if tmin < 0 {
+            if flag {
+                if tmin > t {
+                    tmin = t
+                    index = 3
+                }
+            } else {
                 tmin = t
-            } else if tmin > t {
-                tmin = t
+                flag = true
+                index = 3
             }
         }
         if head.y < 0 {
             let t = -tail.y / vector.y
-            if tmin < 0 {
+            if flag {
+                if tmin > t {
+                    tmin = t
+                    index = 4
+                }
+            } else {
                 tmin = t
-            } else if tmin > t {
-                tmin = t
+                flag = true
+                index = 4
             }
         }
-
-        print(tmin)
-        if tmin < 0 {
-            return (tail, head, vector, false)
+        if !flag {
+            return (tail, head, vector, flag)
         }
-
-        let mirror = RealVector(x: tail.x + tmin * vector.x, y: tail.y + tmin * vector.y)
-        if mirror.x == 0 {
+        let mirror = LineRealVector(x: tail.x + tmin * vector.x, y: tail.y + tmin * vector.y, t: tail.t + tmin)
+        switch index {
+        case 1:
+            head.x = 640 * 2 - head.x
+            vector.x = -vector.x
+        case 2:
             head.x = -head.x
             vector.x = -vector.x
-        }
-        if mirror.x == 640 {
-            head.x = 640 * 2 - head.x
-            vector.x = -vector.x 
-        }
-        if mirror.y == 0 {
-            head.y = -head.y
-            vector.y = -vector.y
-        }
-        if mirror.y == 480 {
+        case 3:
             head.y = 480 * 2 - head.y
             vector.y = -vector.y
+        case 4:
+            head.y = -head.y
+            vector.y = -vector.y
+        default:
+            break
         }
-        return (mirror, head, vector, false)
+        return (mirror, head, vector, flag)
     }
 
-    // func findMirror(start: RealVector, end: RealVector) -> (RealVector, RealVector, Bool) {
-    //     let v = RealVector(x: end.x - start.x, y: end.y - start.y)
-    //     if end.x > 640 {
-    //         let t = (640 - start.x) / v.x
-    //         end.x = 640 * 2 - end.x
-    //         return (RealVector(x: 640, y: start.y + t * v.y), end, true)
-    //     } 
-    //     if end.x < 0 {
-    //         let t = -start.x / v.x
-    //         end.x = -end.x
-    //         return (RealVector(x: 0, y: start.y + t * v.y), end, true)
-    //     }
-        
-    //     if end.y > 480 {
-    //         let t = (480 - start.y) / v.y
-    //         end.y = 480 * 2 - end.y
-    //         print("Bug")
-    //         print(v.y)
-    //         return (RealVector(x: start.x + t * v.y, y: 480), end, true)
-    //     }
-    //     if end.y < 0 {
-    //         let t = -start.y / v.y
-    //         end.y = -end.y
-    //         return (RealVector(x: start.x + t * v.y, y: 0), end, true)
-    //     }
-    //     return (start, end, false)
-    // }
-
     func update(delta: Double) {
-        // if delta <= 0 {
-        //     return
-        // }
-        // let tmp = self.source
-        // self.source.x += delta * self.speed * self.vector.x
-        // self.source.y += delta * self.speed * self.vector.y
-
-        // let(mirror, new, flag) = findMirror(start: tmp, end: self.source)
-
-        // print("Log \(tmp.x) \(tmp.y)")
-        // print("Log \(self.source.x) \(self.source.y)")
-
-        // if flag {
-        //     self.source = new
-        //     self.vector = RealVector(x: new.x - mirror.x, y: new.y - mirror.y).nomal()
-        // }
+        self.head = LineRealVector(x: self.head.x + self.headSpeed.x * delta,
+            y: self.head.y + self.headSpeed.y * delta, t: self.head.t + delta)
+        let last = self.bodys.last ?? self.tail
+        var (mirror, point, speed, flag) = findMirror(tail: last, head: self.head, vector: self.headSpeed)
+        while flag {
+            self.bodys.append(mirror)
+            self.head = point
+            self.headSpeed = speed
+            (mirror, point, speed, flag) = findMirror(tail: mirror, head: point, vector: speed)
+        }
+        self.tail = LineRealVector(x: self.tail.x + self.tailSpeed.x * delta,
+            y: self.tail.y + self.tailSpeed.y * delta, t: self.tail.t + delta)
+        (mirror, point, speed, flag) = findMirror(tail: self.tail, head: self.tail, vector: self.tailSpeed)
+        while flag {
+            self.tail = point
+            self.tailSpeed = speed
+            (mirror, point, speed, flag) = findMirror(tail: self.tail, head: self.tail, vector: self.tailSpeed)
+        }
+        while self.bodys.count > 0 {
+            let last = self.bodys.first!
+            if last.t < point.t {
+                self.bodys.removeFirst()
+            } else {
+                break
+            }
+        }
     }
 }
 
@@ -172,22 +164,10 @@ extension Window {
     func drawLineMirror(lineMirror: LineMirror) {
         var points: [Point] = []
         points.append(lineMirror.tail.point())
-        // print("Draw")
         for body in lineMirror.bodys {
-            // print("Point \(body.x) \(body.y)")
             points.append(body.point())
         }
-        points.append(lineMirror.head.point())        
-        // SDL_RenderDrawLine(self.screenTexture,
-        //     Int32(0), Int32(0),
-        //     Int32(lineMirror.source.x), Int32(lineMirror.source.y))
-        // self.drawLine(start: lineMirror.tail, end: lineMirror.head)
-        // var point: [Point] = []
-        // // point.append(lineMirror.head.convert())
-        // for realPoint in lineMirror.body {
-        //     point.append(realPoint.convert())
-        // }
-        // // point.append(lineMirror.tail.convert())
+        points.append(lineMirror.head.point())
         self.drawLines(points: points)
     }
 }
