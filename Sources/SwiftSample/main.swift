@@ -41,8 +41,8 @@ func main() throws{
     for index in 0...100 {
         points.append(Point(x: Int32(index), y: Int32(index * index / 100)))
     }
-    let lineMirror = LineMirror(tail: RealVector(x: 200, y: 200),
-        speed: RealVector(x: 40, y: -40), leng: 100)
+    let lineMirror = LineMirror(tail: RealVector(x: 7, y: 233),
+        speed: RealVector(x: 23, y: -83), leng: 10)
     var lastTime = SDL_GetTicks()
     while !quit {
         let startTime = SDL_GetTicks()
