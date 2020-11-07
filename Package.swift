@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "SwiftSample",
     dependencies: [
-        .package(url: "git@github.com:TKNgu/SwiftSDL2.git", from: "1.0.4")
+        .package(url: "git@github.com:TKNgu/SwiftSDL2.git", from: "1.0.6")
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
     ],

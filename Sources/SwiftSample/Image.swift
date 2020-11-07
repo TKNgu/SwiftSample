@@ -6,7 +6,7 @@ enum ImageError: Error {
     case optimized
 }
 
-class Image {
+class Image: Drawable {
     var path: String?
     var image: UnsafeMutablePointer<SDL_Surface>? = nil
     var isLoaded: Bool = false
@@ -49,10 +49,22 @@ class Image {
         }
         SDL_DestroyTexture(self.texture)
     }
-}
 
-extension Window {
-    func drawImage(image: Image) {
-        SDL_RenderCopy(self.screenTexture, image.texture, nil, nil);
+    func draw(target: RenderTarget, state: RenderStates) {
+        // SDL_RenderCopy(target.getTexture(), self.texture, nil, nil)
+        SDL_RenderCopyEx(target.getTexture(), self.texture, nil, nil, 90, nil, SDL_FLIP_VERTICAL)
     }
 }
+
+// extension Window {
+//     func drawImage(image: Image) {
+//         SDL_RenderCopy(self.screenTexture, image.texture, nil, nil);
+//     }
+// }
+
+// extension View {
+//     func drawImage(image: Image) {
+//         SDL_RenderSetViewport(self.screenTexture, &self.rect)       
+//     }
+// }
+
