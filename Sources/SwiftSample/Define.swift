@@ -10,7 +10,7 @@ struct Color {
 typealias Rect = SDL_Rect
 typealias Point = SDL_Point
 
-enum SDL_WINDOWPOS: Int32 {
-    case CENTERED = 0x1FFF0000
-    case UNDEFINED = 0
-}
+// enum SDL_WINDOWPOS: Int32 {
+//     case CENTERED = 0x1FFF0000
+//     case UNDEFINED = 0
+// }

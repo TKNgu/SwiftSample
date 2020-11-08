@@ -50,7 +50,7 @@ func controll(event: SDL_Event) {
     }
 }
 
-func main() throws{
+func test() throws{
     let window = try Window(name: "Hello",
         rect: Rect(x: SDL_WINDOWPOS.CENTERED.rawValue, y: SDL_WINDOWPOS.CENTERED.rawValue, w: 640, h: 480),
         flag: SDL_WINDOW_SHOWN)
@@ -140,5 +140,16 @@ func main() throws{
         }
     }
 } 
+
+func main() throws {
+    let game = try Game(title: "Hello",
+        xpos: SDL_WINDOWPOS.CENTERED.rawValue, ypos: SDL_WINDOWPOS.CENTERED.rawValue,
+        height: Uint32(480), width: Uint32(320),
+        flags: SDL_WINDOW_SHOWN.rawValue)
+    while game.running {
+        game.handleEvents()
+        game.render()
+    }
+}
 
 try main()
