@@ -144,10 +144,11 @@ func test() throws{
 func main() throws {
     let game = try Game(title: "Hello",
         xpos: SDL_WINDOWPOS.CENTERED.rawValue, ypos: SDL_WINDOWPOS.CENTERED.rawValue,
-        height: Uint32(480), width: Uint32(320),
+        height: Uint32(480), width: Uint32(640),
         flags: SDL_WINDOW_SHOWN.rawValue)
     while game.running {
         game.handleEvents()
+        game.update()
         game.render()
     }
 }

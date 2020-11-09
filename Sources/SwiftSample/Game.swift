@@ -15,6 +15,7 @@ class Game {
     var running: Bool
     var window: OpaquePointer?
     var renderer: OpaquePointer?
+    var palyer: Player
 
     init(title: String, xpos: Int32, ypos: Int32,
         height: UInt32, width: UInt32, flags: UInt32) throws {
@@ -33,6 +34,17 @@ class Game {
             throw SDLGame.initRenderer
         }
         self.running = true
+
+        try ImageManager.Instance().load(
+            fileName: "Data/freeknight/png/Attack (1).png",
+            id: "attack",
+            screenTexture: self.renderer)
+        try ImageManager.Instance().load(
+            fileName: "Data/freeknight/png/Attack",
+            id: "attack",
+            count: 11,
+            screenTexture: self.renderer)
+        self.palyer = Player(x: 0, y: 0, width: 100, height: 100, id: "attack")
     }
 
     deinit {
@@ -45,11 +57,15 @@ class Game {
         SDL_SetRenderDrawColor(self.renderer,
             0, 0, 0, 255)
         SDL_RenderClear(self.renderer)
+        // if let tmp = ImageManager.Instance().getImage(id: "attack", index: 4) {
+        //     tmp.draw(src: nil, dst: nil)
+        // }
+        self.palyer.draw()
         SDL_RenderPresent(self.renderer)
     }
 
-    func updae() {
-        
+    func update() {
+        self.palyer.update()
     }
 
     func handleEvents() {
