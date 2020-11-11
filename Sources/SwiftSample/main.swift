@@ -146,10 +146,17 @@ func main() throws {
         xpos: SDL_WINDOWPOS.CENTERED.rawValue, ypos: SDL_WINDOWPOS.CENTERED.rawValue,
         height: Uint32(480), width: Uint32(640),
         flags: SDL_WINDOW_SHOWN.rawValue)
+    var startTime: Uint32
+    let frameTime = Uint32(1000 / 25)
     while game.running {
+        startTime = SDL_GetTicks()
         game.handleEvents()
         game.update()
         game.render()
+        let runTime = SDL_GetTicks() - startTime
+        if frameTime > runTime {
+            SDL_Delay(frameTime - runTime)
+        }
     }
 }
 

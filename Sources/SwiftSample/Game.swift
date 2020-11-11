@@ -15,7 +15,7 @@ class Game {
     var running: Bool
     var window: OpaquePointer?
     var renderer: OpaquePointer?
-    var palyer: Player
+    var gameObjects: [GameObject] = []
 
     init(title: String, xpos: Int32, ypos: Int32,
         height: UInt32, width: UInt32, flags: UInt32) throws {
@@ -36,15 +36,27 @@ class Game {
         self.running = true
 
         try ImageManager.Instance().load(
-            fileName: "Data/freeknight/png/Attack (1).png",
-            id: "attack",
-            screenTexture: self.renderer)
-        try ImageManager.Instance().load(
             fileName: "Data/freeknight/png/Attack",
-            id: "attack",
+            id: "knight_attack",
             count: 11,
-            screenTexture: self.renderer)
-        self.palyer = Player(x: 0, y: 0, width: 100, height: 100, id: "attack")
+            screenTexture: self.renderer
+        )
+        try ImageManager.Instance().load(
+            fileName: "Data/robotfree/png/Jump",
+            id: "robot_attack",
+            count: 11,
+            screenTexture: self.renderer
+        )
+        try ImageManager.Instance().load(
+            fileName: "Data/robotfree/png/Dead",
+            id: "robot_dead",
+            count: 11,
+            screenTexture: self.renderer
+        )
+        self.gameObjects.append(Player(x: 0, y: 0, width: 100, height: 100, id: "knight_attack"))
+        self.gameObjects.append(Player(x: 200, y: 200, width: 100, height: 100, id: "knight_attack"))
+        self.gameObjects.append(Player(x: 300, y: 300, width: 100, height: 100, id: "robot_attack"))
+        self.gameObjects.append(Player(x: 300, y: 200, width: 100, height: 100, id: "robot_dead"))
     }
 
     deinit {
@@ -57,20 +69,22 @@ class Game {
         SDL_SetRenderDrawColor(self.renderer,
             0, 0, 0, 255)
         SDL_RenderClear(self.renderer)
-        // if let tmp = ImageManager.Instance().getImage(id: "attack", index: 4) {
-        //     tmp.draw(src: nil, dst: nil)
-        // }
-        self.palyer.draw()
+        for gameObject in self.gameObjects {
+            gameObject.draw()
+        }
         SDL_RenderPresent(self.renderer)
     }
 
     func update() {
-        self.palyer.update()
+        var tick = SDL_GetTicks()
+        for gameObject in self.gameObjects {
+            gameObject.update(time: Double(tick) / 1000.0)
+        }
     }
 
     func handleEvents() {
         var event = SDL_Event(type: UInt32(0))
-        if SDL_PollEvent(&event) != 0 {
+        while SDL_PollEvent(&event) != 0 {
             switch event.type {
             case SDL_QUIT.rawValue:
                 self.running = false
