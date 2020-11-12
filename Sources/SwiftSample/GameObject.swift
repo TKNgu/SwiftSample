@@ -28,7 +28,7 @@ class GameObject {
     }
 
     func update(time: Double) {
-        self.position += self.velocity * time
+        _ = self.position += self.velocity * time
     }
 
     func clean() {

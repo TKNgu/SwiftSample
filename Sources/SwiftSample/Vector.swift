@@ -50,7 +50,7 @@ class Vector {
     }
 
     func normalize() {
-        var l = self.length()
+        let l = self.length()
         self.x /= l
         self.y /= l
     }

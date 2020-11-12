@@ -12,10 +12,10 @@ enum SDL_WINDOWPOS: Int32 {
 }
 
 class Game {
-    var running: Bool
     var window: OpaquePointer?
     var renderer: OpaquePointer?
-    var gameObjects: [GameObject] = []
+    var running: Bool
+    var fsm: FSM
 
     init(title: String, xpos: Int32, ypos: Int32,
         height: UInt32, width: UInt32, flags: UInt32) throws {
@@ -34,39 +34,11 @@ class Game {
             throw SDLGame.initRenderer
         }
         self.running = true
-
+        self.fsm = FSM()
+        try self.fsm.pushState(state: try MenuState(screenTexture: self.renderer))
         InputHandler.inputHandler.quit = {
             self.running = false
         }
-        InputHandler.inputHandler.keyMapDown[Int(SDL_SCANCODE_RIGHT.rawValue)] = {
-            print("SDL_SCANCODE_RIGHT Down")
-        }
-        InputHandler.inputHandler.keyMapUp[Int(SDL_SCANCODE_RIGHT.rawValue)] = {
-            print("SDL_SCANCODE_RIGHT Up")
-        }
-
-        try ImageManager.imageManager.load(
-            fileName: "Data/freeknight/png/Attack",
-            id: "knight_attack",
-            count: 11,
-            screenTexture: self.renderer
-        )
-        try ImageManager.imageManager.load(
-            fileName: "Data/robotfree/png/Jump",
-            id: "robot_attack",
-            count: 11,
-            screenTexture: self.renderer
-        )
-        try ImageManager.imageManager.load(
-            fileName: "Data/robotfree/png/Dead",
-            id: "robot_dead",
-            count: 11,
-            screenTexture: self.renderer
-        )
-        self.gameObjects.append(Player(x: 0, y: 0, width: 100, height: 100, id: "knight_attack"))
-        self.gameObjects.append(Player(x: 200, y: 200, width: 100, height: 100, id: "knight_attack"))
-        self.gameObjects.append(Player(x: 300, y: 300, width: 100, height: 100, id: "robot_attack"))
-        self.gameObjects.append(Player(x: 300, y: 200, width: 100, height: 100, id: "robot_dead"))
     }
 
     deinit {
@@ -79,29 +51,20 @@ class Game {
         SDL_SetRenderDrawColor(self.renderer,
             0, 0, 0, 255)
         SDL_RenderClear(self.renderer)
-        for gameObject in self.gameObjects {
-            gameObject.draw()
+        for state in self.fsm.states {
+            state.render()
         }
         SDL_RenderPresent(self.renderer)
     }
 
     func update() {
         let tick = SDL_GetTicks()
-        for gameObject in self.gameObjects {
-            gameObject.update(time: Double(tick) / 1000.0)
+        for state in self.fsm.states {
+            state.update(time: Double(tick) / 1000.0)
         }
     }
 
     func handleEvents() {
         InputHandler.inputHandler.update()
-        // var event = SDL_Event(type: UInt32(0))
-        // while SDL_PollEvent(&event) != 0 {
-        //     switch event.type {
-        //     case SDL_QUIT.rawValue:
-        //         self.running = false
-        //     default:
-        //         break
-        //     }
-        // }
     }
 }

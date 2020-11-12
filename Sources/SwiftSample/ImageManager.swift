@@ -8,7 +8,9 @@ class ImageManager {
     }
 
     func load(fileName: String, id: String, screenTexture: OpaquePointer?) throws {
+        print(fileName)
         let image = try Image(path: fileName, screenTexture: screenTexture)
+        print(id)
         self.mapImages[id] = image
     }
 

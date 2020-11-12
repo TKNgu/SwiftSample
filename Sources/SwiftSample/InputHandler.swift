@@ -7,6 +7,9 @@ class InputHandler {
     var keyMapDown: [Int: () -> Void] = [:]
     var keyMapUp: [Int: () -> Void] = [:]
     var keystate: UnsafePointer<UInt8>? = nil
+    var mouseEvents: [(_ x: Int, _ y: Int) -> Void] = []
+    var mouseDown: [() -> Void] = []
+    var mouseUp: [() -> Void] = []
 
     private init() {
         //TODO
@@ -29,15 +32,24 @@ class InputHandler {
     }
 
     func onMouseMove(event: SDL_Event) {
-        //TODO
+        var x = Int32(0)
+        var y = Int32(0)
+        SDL_GetMouseState(&x, &y)
+        for event in self.mouseEvents {
+            event(Int(x), Int(y))
+        }
     }
 
     func onMouseButtonDown(event: SDL_Event) {
-        //TODO
+        for event in self.mouseDown {
+            event()
+        }
     }
 
     func onMouseButtonUp(event: SDL_Event) {
-        //TODO
+        for event in self.mouseUp {
+            event()
+        }
     }
 
     func onQuit(event: SDL_Event) {
@@ -54,7 +66,7 @@ class InputHandler {
                 case SDL_MOUSEMOTION.rawValue:
                     onMouseMove(event: event)
                 case SDL_MOUSEBUTTONDOWN.rawValue:
-                    onMouseButtonUp(event: event)
+                    onMouseButtonDown(event: event)
                 case SDL_MOUSEBUTTONUP.rawValue:
                     onMouseButtonUp(event: event)
                 case SDL_KEYDOWN.rawValue:
