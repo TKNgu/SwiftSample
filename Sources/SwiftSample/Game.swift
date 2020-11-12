@@ -35,19 +35,29 @@ class Game {
         }
         self.running = true
 
-        try ImageManager.Instance().load(
+        InputHandler.inputHandler.quit = {
+            self.running = false
+        }
+        InputHandler.inputHandler.keyMapDown[Int(SDL_SCANCODE_RIGHT.rawValue)] = {
+            print("SDL_SCANCODE_RIGHT Down")
+        }
+        InputHandler.inputHandler.keyMapUp[Int(SDL_SCANCODE_RIGHT.rawValue)] = {
+            print("SDL_SCANCODE_RIGHT Up")
+        }
+
+        try ImageManager.imageManager.load(
             fileName: "Data/freeknight/png/Attack",
             id: "knight_attack",
             count: 11,
             screenTexture: self.renderer
         )
-        try ImageManager.Instance().load(
+        try ImageManager.imageManager.load(
             fileName: "Data/robotfree/png/Jump",
             id: "robot_attack",
             count: 11,
             screenTexture: self.renderer
         )
-        try ImageManager.Instance().load(
+        try ImageManager.imageManager.load(
             fileName: "Data/robotfree/png/Dead",
             id: "robot_dead",
             count: 11,
@@ -76,21 +86,22 @@ class Game {
     }
 
     func update() {
-        var tick = SDL_GetTicks()
+        let tick = SDL_GetTicks()
         for gameObject in self.gameObjects {
             gameObject.update(time: Double(tick) / 1000.0)
         }
     }
 
     func handleEvents() {
-        var event = SDL_Event(type: UInt32(0))
-        while SDL_PollEvent(&event) != 0 {
-            switch event.type {
-            case SDL_QUIT.rawValue:
-                self.running = false
-            default:
-                break
-            }
-        }
+        InputHandler.inputHandler.update()
+        // var event = SDL_Event(type: UInt32(0))
+        // while SDL_PollEvent(&event) != 0 {
+        //     switch event.type {
+        //     case SDL_QUIT.rawValue:
+        //         self.running = false
+        //     default:
+        //         break
+        //     }
+        // }
     }
 }

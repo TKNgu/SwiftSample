@@ -11,11 +11,8 @@ class Player: GameObject {
 
     override func update(time: Double) {
         self.velocity = Vector(x: 1, y: 1)
-        super.update(time: time)
-        // print("Update")
-        // self.position += Vector(x: 1, y: 1)
-        print(time)
         super.index = (Int(time * 20) + self.offset) % 10
+        super.update(time: time)
     }
 
     override func clean() {

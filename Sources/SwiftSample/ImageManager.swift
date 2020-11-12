@@ -36,7 +36,7 @@ class ImageManager {
         return self.mapImageList[id]
     }
 
-    static func Instance() -> ImageManager {
-        return imageManager
-    }
+    // static func Instance() -> ImageManager {
+    //     return imageManager
+    // }
 }

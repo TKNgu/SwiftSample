@@ -22,7 +22,7 @@ class GameObject {
     func draw() {
         var rect = SDL_Rect(x: Int32(self.position.x), y: Int32(self.position.y),
             w: Int32(self.width), h: Int32(self.height))
-        if let image = ImageManager.Instance().getImage(id: self.id, index: self.index) {
+        if let image = ImageManager.imageManager.getImage(id: self.id, index: self.index) {
             image.draw(src: nil, dst: &rect, angle: 0, center: nil, flip: SDL_FLIP_NONE)
         }
     }
