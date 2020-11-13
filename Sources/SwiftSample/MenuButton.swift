@@ -7,16 +7,29 @@ class MenuButton: GameObject {
     var click: () -> Void
     var flag = false
 
+    var position: Vector
+    var velocity: Vector
+    var width: Double = 0
+    var height: Double = 0
+    var id: String
+    var index: Int
+
     init(x: Double, y: Double,
         width: Double, height: Double,
         id: String, nomal: SDL_Rect, select: SDL_Rect) {
         self.nomal = nomal
         self.select = select
-        self.click = {}
-        super.init(x: x, y: y, width: width, height: height, id: id)        
+        self.click = {} 
+
+        self.position = Vector(x: x, y: y)
+        self.velocity = Vector()
+        self.width = width
+        self.height = height
+        self.id = id
+        self.index = 0     
     }
 
-    override func draw() {
+    func draw(renderStates: RenderStates) {
         var rect = SDL_Rect(x: Int32(self.position.x), y: Int32(self.position.y),
             w: Int32(self.width), h: Int32(self.height))
         if let image = ImageManager.imageManager.getImage(id: self.id) {
@@ -28,8 +41,12 @@ class MenuButton: GameObject {
         }
     }
 
+    func update(time: Double) {
+
+    }
+
     func onMouseMove(x: Int, y: Int) {
-        self.onMouse = Int(self.position.x) < x && x < Int(self.position.x + super.width) && Int(self.position.y) < y && y < Int(self.position.y + super.height)
+        self.onMouse = Int(self.position.x) < x && x < Int(self.position.x + self.width) && Int(self.position.y) < y && y < Int(self.position.y + self.height)
     }
 
     func onMouseDown() {

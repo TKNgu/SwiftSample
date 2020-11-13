@@ -54,8 +54,14 @@ class MenuState: GameState {
     }
 
     func render() {
+        var renderStates = RenderStates(src: SDL_Rect(x: 0, y: 0, w: 0, h: 0),
+            dst: SDL_Rect(x: 0, y: 0, w: 0, h: 0),
+            angle: 0,
+            point: SDL_Point(x: 0, y: 0),
+            flip: SDL_FLIP_NONE)
+
         for gameObject in self.gameObjects {
-            gameObject.draw()
+            gameObject.draw(renderStates: renderStates)
         }
     }
 

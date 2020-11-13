@@ -132,4 +132,4 @@ func chip() throws {
   cpSpaceFree(space);
 }
 
-try chip()
+try main()

@@ -5,9 +5,15 @@ class PlayState: GameState {
     var player: Player
     var keyMapDown: [UInt32: () -> Void] = [:]
     var keyMapUp: [UInt32: () -> Void] = [:]
+    var space: UnsafeMutablePointer<cpSpace>
+    var map: Map
 
     init(screenTexture: OpaquePointer?) {
         self.screenTexture = screenTexture
+        self.space = cpSpaceNew()
+        let gravity = cpv(0, -1)
+        cpSpaceSetGravity(self.space, gravity)
+
         self.player = Player(x: 0, y: 100, width: 100, height: 100, id: "robot")
 
         self.keyMapDown[SDL_SCANCODE_LEFT.rawValue] = self.player.runLeft
@@ -17,6 +23,9 @@ class PlayState: GameState {
         self.keyMapUp[SDL_SCANCODE_LEFT.rawValue] = self.player.idle
         self.keyMapUp[SDL_SCANCODE_RIGHT.rawValue] = self.player.idle
         self.keyMapUp[SDL_SCANCODE_UP.rawValue] = self.player.idle
+
+        self.map = Map(screenTexture: screenTexture)
+        self.map.addSpace(space: self.space)
     }
 
     func onEnter() throws {
@@ -50,7 +59,13 @@ class PlayState: GameState {
     }
 
     func render() {
-        self.player.draw()
+        var renderStates = RenderStates(src: SDL_Rect(x: 0, y: 0, w: 0, h: 0),
+        dst: SDL_Rect(x: 0, y: 0, w: 0, h: 0),
+        angle: 0,
+        point: SDL_Point(x: 0, y: 0),
+        flip: SDL_FLIP_NONE)
+        self.player.draw(renderStates: renderStates)
+        self.map.draw(renderStates: renderStates)
     }
 
     func onPause() {
