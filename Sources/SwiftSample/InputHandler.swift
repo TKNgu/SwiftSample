@@ -4,8 +4,8 @@ class InputHandler {
     static let inputHandler = InputHandler()
 
     var quit: () -> Void = {}
-    var keyMapDown: [Int: () -> Void] = [:]
-    var keyMapUp: [Int: () -> Void] = [:]
+    var keyMapDown: [UInt32: () -> Void] = [:]
+    var keyMapUp: [UInt32: () -> Void] = [:]
     var keystate: UnsafePointer<UInt8>? = nil
     var mouseEvents: [(_ x: Int, _ y: Int) -> Void] = []
     var mouseDown: [() -> Void] = []
@@ -17,7 +17,7 @@ class InputHandler {
 
     func onKeyDown() {
         for (keyCode, event) in self.keyMapDown {
-            if self.keystate![keyCode] == 1 {
+            if self.keystate![Int(keyCode)] == 1 {
                 event()
             }
         }
@@ -25,7 +25,7 @@ class InputHandler {
 
     func onKeyUp() {
         for (keyCode, event) in self.keyMapUp {
-            if self.keystate![keyCode] == 0 {
+            if self.keystate![Int(keyCode)] == 0 {
                 event()
             }
         }

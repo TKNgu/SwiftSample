@@ -9,11 +9,10 @@ class MenuButton: GameObject {
 
     init(x: Double, y: Double,
         width: Double, height: Double,
-        id: String, nomal: SDL_Rect, select: SDL_Rect,
-        click: @escaping () -> Void) {
+        id: String, nomal: SDL_Rect, select: SDL_Rect) {
         self.nomal = nomal
         self.select = select
-        self.click = click
+        self.click = {}
         super.init(x: x, y: y, width: width, height: height, id: id)        
     }
 

@@ -1,146 +1,5 @@
 import SwiftSDL2
 
-func drawView(window: Window) {
-    window.setDrawColor(color: Color(r: 0xFF, g: 0x00, b: 0x00, a: 0x00))
-    var rect = Rect(x: window.rect.w / 4, y: window.rect.h / 4, w: window.rect.w / 2, h: window.rect.h / 2)
-    window.drawFileRect(rect: &rect)
-
-    window.setDrawColor(color: Color(r: 0x00, g: 0xFF, b: 0x00, a: 0xFF))
-    rect = Rect(x: window.rect.w / 6, y: window.rect.h / 6, w: window.rect.w * 2 / 3, h: window.rect.h * 2 / 3)
-    window.drawRect(rect: &rect)
-
-    window.setDrawColor(color: Color(r: 0x00, g: 0x00, b: 0xFF, a: 0xFF))
-    let start = Point(x: 0, y: window.rect.h / 2)
-    let end = Point(x: window.rect.w, y: window.rect.h / 2)
-    window.drawLine(start: start, end: end)
-
-    window.setDrawColor(color: Color(r: 0xFF, g: 0xFF, b: 0x00, a: 0xFF))
-    for index in 0..<window.rect.h / 4 {
-        window.drawPoint(point: Point(x: window.rect.w / 2, y: index * 4))
-    }
-}
-
-func controll(event: SDL_Event) {
-    print("Event")
-    var type = event.type
-    if (type == SDL_MOUSEMOTION.rawValue || type == SDL_MOUSEBUTTONDOWN.rawValue || type == SDL_MOUSEBUTTONUP.rawValue) {
-        print("Mouse controll")
-        var x: Int32 = 0
-        var y: Int32 = 0
-        SDL_GetMouseState( &x, &y );
-        print("Mouse \(x) \(y) \(type)")
-        let currentKeyStates = SDL_GetKeyboardState(nil)
-        if currentKeyStates![Int(SDL_SCANCODE_UP.rawValue)] != UInt8(0) {
-            print("Up")
-        }
-    }
-
-    let currentKeyStates = SDL_GetKeyboardState(nil)
-    if currentKeyStates![Int(SDL_SCANCODE_UP.rawValue)] != UInt8(0) {
-        print("Up")
-    }
-    if currentKeyStates![Int(SDL_SCANCODE_DOWN.rawValue)] != UInt8(0) {
-        print("Down")
-    }
-    if currentKeyStates![Int(SDL_SCANCODE_LEFT.rawValue)] != UInt8(0) {
-        print("Left")
-    }
-    if currentKeyStates![Int(SDL_SCANCODE_RIGHT.rawValue)] != UInt8(0) {
-        print("Right")
-    }
-}
-
-func test() throws{
-    let window = try Window(name: "Hello",
-        rect: Rect(x: SDL_WINDOWPOS.CENTERED.rawValue, y: SDL_WINDOWPOS.CENTERED.rawValue, w: 640, h: 480),
-        flag: SDL_WINDOW_SHOWN)
-    let image = try Image(path: "Data/image.png")
-        .load()
-        .optimized(window: window)
-    let hero = try Image(path: "Data/freeknight/png/Attack (1).png")
-        .load()
-        .optimized(window: window)
-
-    var heros: [Image] = []
-    for index in 1..<11 {
-        var tmp = try Image(path: "Data/freeknight/png/Attack (\(index)).png")
-            .load()
-            .optimized(window: window)
-        heros.append(tmp)
-        print(index)
-    }
-
-    var quit = false
-    var event: SDL_Event = SDL_Event(type: Uint32(0))
-
-    let speedX = 130.0
-    let speedY = 70.0
-    var snack: [MotionPoint] = []
-    for index in 0...10 {
-        snack.append(MotionPoint(x: Double(index * 13), y: Double(index * 7), speedX: speedX, speedY: speedY))
-    }
-    var points: [Point] = []
-    for index in 0...100 {
-        points.append(Point(x: Int32(index), y: Int32(index * index / 100)))
-    }
-    let lineMirror = LineMirror(tail: RealVector(x: 7, y: 233),
-        speed: RealVector(x: 23, y: -83), leng: 10)
-    var lastTime = SDL_GetTicks()
-    let view = View(rect: Rect(x: 50, y: 50, w: 300, h: 300), screenTexture: window.getTexture())
-
-    let gFont = TTF_OpenFont( "Data/UbuntuMono-R.ttf", 14)
-    if gFont == nil {
-        print("Error load fornt")
-    }
-    var textColor = SDL_Color(r: 0xff, g: 0xff, b: 0xff, a: 0xff)
-    var textSurface = TTF_RenderText_Solid(gFont, "Phạm Trung Ngọc The quick brown fox jumps over the lazy dog", textColor);
-    var mWidth = textSurface!.pointee.w;
-    var mHeight = textSurface!.pointee.h;
-    var mTexture = SDL_CreateTextureFromSurface(window.getTexture(), textSurface)
-    SDL_FreeSurface(textSurface)
-    // if (gTextTexture.loadFromRenderedText( "The quick brown fox jumps over the lazy dog", textColor) != 0) {
-    //     print( "Failed to render text texture!\n" )
-    // }
-
-    while !quit {
-        let startTime = SDL_GetTicks()
-        while SDL_PollEvent(&event) != 0 {
-            if event.type == SDL_QUIT.rawValue {
-                quit = true
-            }
-            controll(event: event)
-        }
-        window.clean(color: Color(r: 0x00, g: 0x00, b: 0x00, a: 0x00))
-        // window.drawImage(image: image)
-        // image.draw(target: window, state: Sample())
-        // image.draw(target: view, state: Sample())
-        // hero.draw(target: window, state: Sample())
-        // drawView(window: window)
-        // window.setDrawColor(color: Color(r: 0x00, g: 0xFF, b: 0x00, a: 0x00))
-        // window.drawLines(points: points)
-
-        // let delta = Double(startTime - lastTime) / 1000
-        // lastTime = startTime
-        // window.setDrawColor(color: Color(r: 0x00, g: 0x00, b: 0x00, a: 0x00))
-        // for head in snack {
-        //     head.update(delta: delta)
-        //     window.drawPoint(point: Point(x: Int32(head.x), y: Int32(head.y)))
-        // }
-        // lineMirror.update(delta: delta)
-        // window.drawLineMirror(lineMirror: lineMirror)
-        // var index = Int(SDL_GetTicks() / 250) % 9 + 1
-        // heros[index].draw(target: window, state: Sample())
-        var rectText = Rect(x: 0, y: 0, w: mWidth, h: mHeight)
-        var rectView = Rect(x: 0, y: 0, w: 100, h: 100)
-        SDL_RenderCopy(window.getTexture(), mTexture, &rectText, &rectText)
-        window.update()
-        let runTime = SDL_GetTicks() - startTime
-        if Uint32(1000 / 25) > runTime {
-            SDL_Delay(Uint32(1000 / 25) - runTime)
-        }
-    }
-} 
-
 func main() throws {
     let game = try Game(title: "Hello",
         xpos: SDL_WINDOWPOS.CENTERED.rawValue, ypos: SDL_WINDOWPOS.CENTERED.rawValue,
@@ -160,4 +19,78 @@ func main() throws {
     }
 }
 
-try main()
+// try main()
+
+func chip() {
+  // cpVect is a 2D vector and cpv() is a shortcut for initializing them.
+  var gravity = cpv(0, -100);
+  
+  // Create an empty space.
+  var space = cpSpaceNew();
+  cpSpaceSetGravity(space, gravity);
+  
+  // Add a static line segment shape for the ground.
+  // We'll make it slightly tilted so the ball will roll off.
+  // We attach it to a static body to tell Chipmunk it shouldn't be movable.
+  var ground = cpSegmentShapeNew(cpSpaceGetStaticBody(space), cpv(-20, 5), cpv(20, -5), 0);
+  cpShapeSetFriction(ground, 1);
+  cpSpaceAddShape(space, ground);
+  
+  // Now let's make a ball that falls onto the line and rolls off.
+  // First we need to make a cpBody to hold the physical properties of the object.
+  // These include the mass, position, velocity, angle, etc. of the object.
+  // Then we attach collision shapes to the cpBody to give it a size and shape.
+  
+  var radius = cpFloat(5)
+  var mass = cpFloat(1)
+  
+  // The moment of inertia is like mass for rotation
+  // Use the cpMomentFor*() functions to help you approximate it.
+  var moment = cpMomentForCircle(mass, 0, radius, cpvzero);
+  
+  // The cpSpaceAdd*() functions return the thing that you are adding.
+  // It's convenient to create and add an object in one line.
+  var ballBody = cpSpaceAddBody(space, cpBodyNew(mass, moment));
+  cpBodySetPosition(ballBody, cpv(0, 15));
+  
+  // Now we create the collision shape for the ball.
+  // You can create multiple collision shapes that point to the same body.
+  // They will all be attached to the body and move around to follow it.
+  var ballShape = cpSpaceAddShape(space, cpCircleShapeNew(ballBody, radius, cpvzero));
+  cpShapeSetFriction(ballShape, 0.7);
+  
+  // Now that it's all set up, we simulate all the objects in the space by
+  // stepping forward through time in small increments called steps.
+  // It is *highly* recommended to use a fixed size time step.
+    var timeStep = cpFloat(1.0/60.0)
+    var time = cpFloat(0)
+    while time < 2 {
+
+    var pos = cpBodyGetPosition(ballBody);
+    var vel = cpBodyGetVelocity(ballBody);
+    print("Time is \(time). ballBody is at (\(pos.x), \(pos.y)). It's velocity is (\(vel.x), \(vel.y))")
+    
+    cpSpaceStep(space, timeStep);
+
+      time += timeStep
+    }
+
+  //   for(cpFloat time = 0; time < 2; time += timeStep){
+  //   var pos = cpBodyGetPosition(ballBody);
+  //   var vel = cpBodyGetVelocity(ballBody);
+  //   printf(
+  //     "Time is %5.2f. ballBody is at (%5.2f, %5.2f). It's velocity is (%5.2f, %5.2f)\n",
+  //     time, pos.x, pos.y, vel.x, vel.y
+  //   );
+    
+  //   cpSpaceStep(space, timeStep);
+  // }
+  
+  // Clean up our objects and exit!
+  cpShapeFree(ballShape);
+  cpBodyFree(ballBody);
+  cpShapeFree(ground);
+  cpSpaceFree(space);
+}
+
+chip()

@@ -10,7 +10,7 @@ class FSM {
         self.states.append(state)
     }
 
-    func popState(state: GameState) {
+    func popState() {
         if let last = self.states.last {
             last.onPause()
             last.onExit()

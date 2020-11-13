@@ -16,6 +16,8 @@ class Game {
     var renderer: OpaquePointer?
     var running: Bool
     var fsm: FSM
+    var menuState: MenuState
+    var playState: PlayState
 
     init(title: String, xpos: Int32, ypos: Int32,
         height: UInt32, width: UInt32, flags: UInt32) throws {
@@ -35,9 +37,33 @@ class Game {
         }
         self.running = true
         self.fsm = FSM()
-        try self.fsm.pushState(state: try MenuState(screenTexture: self.renderer))
+        self.menuState = MenuState(screenTexture: self.renderer)
+        self.playState = PlayState(screenTexture: self.renderer) 
+        self.menuState.exitButton.click = {
+            self.running = false
+        }
+        self.menuState.startButton.click = self.changPlayState
+        self.changMenuState()
         InputHandler.inputHandler.quit = {
             self.running = false
+        }
+    }
+
+    func changPlayState() {
+        self.fsm.popState()
+        do {
+            try self.fsm.pushState(state: self.playState)
+        } catch {
+            print("Error play")
+        }
+    }
+
+    func changMenuState() {
+        self.fsm.popState()
+        do {
+            try self.fsm.pushState(state: self.menuState)
+        } catch {
+            print("Error menu")
         }
     }
 
