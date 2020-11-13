@@ -21,9 +21,17 @@ func main() throws {
 
 // try main()
 
-func chip() {
+func chip() throws {
+
+    let window = try Window(name: "Test", rect: Rect(x: SDL_WINDOWPOS.CENTERED.rawValue, y: SDL_WINDOWPOS.CENTERED.rawValue,
+        w: 640, h: 480), flag: SDL_WINDOW_SHOWN)
+    var running = true
+    InputHandler.inputHandler.quit = {
+        running = false
+    }
+
   // cpVect is a 2D vector and cpv() is a shortcut for initializing them.
-  var gravity = cpv(0, -100);
+  var gravity = cpv(0, -1);
   
   // Create an empty space.
   var space = cpSpaceNew();
@@ -62,17 +70,48 @@ func chip() {
   // Now that it's all set up, we simulate all the objects in the space by
   // stepping forward through time in small increments called steps.
   // It is *highly* recommended to use a fixed size time step.
-    var timeStep = cpFloat(1.0/60.0)
-    var time = cpFloat(0)
-    while time < 2 {
+    // var timeStep = cpFloat(1.0/60.0)
+    // var time = cpFloat(0)
+    // while time < 2 {
 
-    var pos = cpBodyGetPosition(ballBody);
-    var vel = cpBodyGetVelocity(ballBody);
-    print("Time is \(time). ballBody is at (\(pos.x), \(pos.y)). It's velocity is (\(vel.x), \(vel.y))")
+    // var pos = cpBodyGetPosition(ballBody);
+    // var vel = cpBodyGetVelocity(ballBody);
+    // print("Time is \(time). ballBody is at (\(pos.x), \(pos.y)). It's velocity is (\(vel.x), \(vel.y))")
     
-    cpSpaceStep(space, timeStep);
+    // cpSpaceStep(space, timeStep);
 
-      time += timeStep
+    //   time += timeStep
+    // }
+
+    var startTime = SDL_GetTicks()
+    let frameTime = Uint32(1000 / 25)
+    var timeStep = cpFloat(1.0 / 25.0)
+    var time = cpFloat(0)
+    while running {
+        InputHandler.inputHandler.update()
+
+        var pos = cpBodyGetPosition(ballBody);
+        var vel = cpBodyGetVelocity(ballBody);
+        print("Time is \(time). ballBody is at (\(pos.x), \(pos.y)). It's velocity is (\(vel.x), \(vel.y))")
+        
+        cpSpaceStep(space, timeStep);
+
+        time += timeStep
+
+        SDL_SetRenderDrawColor(window.screenTexture,
+            0, 0, 0, 255)
+        SDL_RenderClear(window.screenTexture)
+
+        SDL_SetRenderDrawColor(window.screenTexture,
+            255, 255, 255, 255)
+        window.drawLine(start: Point(x: 100 - 200, y: 240 - 50), end: Point(x: 100 + 200, y: 240 + 50))
+        window.drawPoint(point: Point(x: 100 + Int32(pos.x * 10), y: 240 - Int32(pos.y * 10)))
+
+        SDL_RenderPresent(window.screenTexture)
+        let runTime = SDL_GetTicks() - startTime
+        if frameTime > runTime {
+            SDL_Delay(frameTime - runTime)
+        }
     }
 
   //   for(cpFloat time = 0; time < 2; time += timeStep){
@@ -93,4 +132,4 @@ func chip() {
   cpSpaceFree(space);
 }
 
-chip()
+try chip()
