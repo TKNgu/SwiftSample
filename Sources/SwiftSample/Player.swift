@@ -11,6 +11,8 @@ class Player: GameObject {
     var height: Double = 0
     var id: String
     var index: Int
+    var body: UnsafeMutablePointer<cpBody>
+    var shape: UnsafeMutablePointer<cpShape>
 
     // init(x: Double, y: Double,
     //     width: Double, height: Double,
@@ -26,7 +28,7 @@ class Player: GameObject {
 
     init(x: Double, y: Double,
         width: Double, height: Double,
-        id: String) {
+        id: String, space: UnsafeMutablePointer<cpSpace>) {
         self.offset = Int.random(in: 0..<10)
         self.count = 10
         self.flip = SDL_FLIP_NONE
@@ -37,39 +39,76 @@ class Player: GameObject {
         self.height = height
         self.id = "robot_idle"
         self.index = 0
+
+        var radius = cpFloat(5)
+        var mass = cpFloat(60)
+        var moment = cpMomentForCircle(mass, 0, radius, cpvzero)
+        self.body = cpBodyNew(mass, moment)
+        self.body = cpSpaceAddBody(space, self.body)
+        cpBodySetPosition(self.body, cpv(x, 400 - y - self.height))
+        self.shape = cpSpaceAddShape(space, cpBoxShapeNew(self.body, self.width, self.height, 1));
+        cpShapeSetFriction(self.shape, 1);
+    }
+
+    deinit {
+        cpShapeFree(self.shape)
+        cpBodyFree(self.body);
     }
 
     func idle() {
+        var pos = cpBodyGetPosition(self.body)
+        // if pos.y <= 5.5 {
+        //     return
+        // }
         self.id = "robot_idle"
         self.velocity = Vector(x: 0, y: 0)
+        cpBodySetForce(self.body, cpVect(x: self.velocity.x, y: self.velocity.y))
     }
 
     func runJump() {
+        var pos = cpBodyGetPosition(self.body)
+        // if pos.y > 50.5 {
+        //     return
+        // }
         self.id = "robot_jump"
         self.count = 10
-        self.velocity = Vector(x: 0, y: 0)
+        self.velocity.y = 500
+        cpBodySetForce(self.body, cpVect(x: self.velocity.x, y: self.velocity.y))
     }
 
     func runLeft() {
+        var pos = cpBodyGetPosition(self.body)
+        // if pos.y > 50.5 {
+        //     return
+        // }
         self.id = "robot_run"
         self.count = 8
-        self.velocity = Vector(x: -60, y: 0)
+        self.velocity.x = -500
+        cpBodySetForce(self.body, cpVect(x: self.velocity.x, y: self.velocity.y))
         self.flip = SDL_FLIP_HORIZONTAL
     }
 
     func runRight() {
+        var pos = cpBodyGetPosition(self.body)
+        // if pos.y > 50.5 {
+        //     return
+        // }
         self.id = "robot_run"
         self.count = 8
-        self.velocity = Vector(x: 60, y: 0)
+        self.velocity.x = 500
+        cpBodySetForce(self.body, cpVect(x: self.velocity.x, y: self.velocity.y))
         self.flip = SDL_FLIP_NONE
     }
 
     func update(time: Double) {
+        var pos = cpBodyGetPosition(self.body);
         if self.lastTime == 0 {
             self.lastTime = time
         }
         self.index = (Int(time * 10) + self.offset) % self.count
-        self.position += self.velocity * (time - self.lastTime)
+        // self.position += self.velocity * (time - self.lastTime)
+        self.position = Vector(x: pos.x, y: 400 - pos.y - self.height / 2 + 10)
+        // print("\(self.position.x) \(pos.y)")
         self.lastTime = time
     }
 

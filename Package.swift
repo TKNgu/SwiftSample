@@ -15,7 +15,10 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "SwiftSample",
-            dependencies: []),
+            dependencies: ["SDL2GLFX"]),
+        .target(
+            name: "SDL2GLFX",
+            path: "./Sources/SDL2GLFX"),
         .testTarget(
             name: "SwiftSampleTests",
             dependencies: ["SwiftSample"]),

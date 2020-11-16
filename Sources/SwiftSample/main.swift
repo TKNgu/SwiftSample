@@ -1,4 +1,5 @@
 import SwiftSDL2
+import SDL2GLFX
 
 func main() throws {
     let game = try Game(title: "Hello",
@@ -29,6 +30,14 @@ func chip() throws {
     InputHandler.inputHandler.quit = {
         running = false
     }
+
+    var ddpi: Float = 0
+    var hdpi: Float = 0
+    var vdpi: Float = 0
+    SDL_GetDisplayDPI(0, &ddpi, &hdpi, &vdpi)
+    print("DPI \(ddpi) \(hdpi) \(vdpi)")
+    SDL_GetDisplayDPI(1, &ddpi, &hdpi, &vdpi)
+    print("DPI \(ddpi) \(hdpi) \(vdpi)")
 
   // cpVect is a 2D vector and cpv() is a shortcut for initializing them.
   var gravity = cpv(0, -1);
@@ -92,7 +101,7 @@ func chip() throws {
 
         var pos = cpBodyGetPosition(ballBody);
         var vel = cpBodyGetVelocity(ballBody);
-        print("Time is \(time). ballBody is at (\(pos.x), \(pos.y)). It's velocity is (\(vel.x), \(vel.y))")
+        // print("Time is \(time). ballBody is at (\(pos.x), \(pos.y)). It's velocity is (\(vel.x), \(vel.y))")
         
         cpSpaceStep(space, timeStep);
 
@@ -106,6 +115,8 @@ func chip() throws {
             255, 255, 255, 255)
         window.drawLine(start: Point(x: 100 - 200, y: 240 - 50), end: Point(x: 100 + 200, y: 240 + 50))
         window.drawPoint(point: Point(x: 100 + Int32(pos.x * 10), y: 240 - Int32(pos.y * 10)))
+        rectangleColor(window.screenTexture, 10, 10, 100, 100, 0xffffffff)
+        // int rectangleColor(SDL_Renderer * renderer, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Uint32 color)
 
         SDL_RenderPresent(window.screenTexture)
         let runTime = SDL_GetTicks() - startTime
@@ -132,4 +143,8 @@ func chip() throws {
   cpSpaceFree(space);
 }
 
+<<<<<<< HEAD
 try main()
+=======
+try LogoSmash()
+>>>>>>> bd2831182175f143c48f0b4c4746c70e748cde08

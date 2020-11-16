@@ -7,14 +7,15 @@ class PlayState: GameState {
     var keyMapUp: [UInt32: () -> Void] = [:]
     var space: UnsafeMutablePointer<cpSpace>
     var map: Map
+    var last: Double = 0
 
     init(screenTexture: OpaquePointer?) {
         self.screenTexture = screenTexture
         self.space = cpSpaceNew()
-        let gravity = cpv(0, -1)
+        let gravity = cpv(0, -100)
         cpSpaceSetGravity(self.space, gravity)
 
-        self.player = Player(x: 0, y: 100, width: 100, height: 100, id: "robot")
+        self.player = Player(x: 0, y: 200, width: 100, height: 100, id: "robot", space: self.space)
 
         self.keyMapDown[SDL_SCANCODE_LEFT.rawValue] = self.player.runLeft
         self.keyMapDown[SDL_SCANCODE_RIGHT.rawValue] = self.player.runRight
@@ -24,8 +25,12 @@ class PlayState: GameState {
         self.keyMapUp[SDL_SCANCODE_RIGHT.rawValue] = self.player.idle
         self.keyMapUp[SDL_SCANCODE_UP.rawValue] = self.player.idle
 
-        self.map = Map(screenTexture: screenTexture)
-        self.map.addSpace(space: self.space)
+        self.map = Map(screenTexture: screenTexture, space: self.space)
+        // self.map.addSpace(space: self.space)
+    }
+
+    deinit {
+        cpSpaceFree(self.space)
     }
 
     func onEnter() throws {
@@ -55,6 +60,9 @@ class PlayState: GameState {
     }
 
     func update(time: Double) {
+        print(time - self.last)
+        cpSpaceStep(self.space, (time - self.last));
+        self.last = time
         self.player.update(time: time)
     }
 
