@@ -19,7 +19,7 @@ func LogoSmash() throws {
     print("DPI \(ddpi) \(hdpi) \(vdpi)")
 
 
-    var image_bitmap = [
+    let image_bitmap = [
 	15,-16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,-64,15,63,-32,-2,0,0,0,0,0,0,0,
 	0,0,0,0,0,0,0,0,0,0,0,31,-64,15,127,-125,-1,-128,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 	0,0,0,127,-64,15,127,15,-1,-64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,-1,-64,15,-2,
@@ -60,8 +60,33 @@ func LogoSmash() throws {
     cpSpaceUseSpatialHash(space, 2.0, 10000)
     
     var bodyCount = 0
-    var bodys[cpBody] = []
-    var shapes[cpShape] = []
+    var body: UnsafeMutablePointer<cpBody>? = nil
+    var shape: UnsafeMutablePointer<cpShape>? = nil
+
+    let image_width = 188;
+    let image_height = 35;
+    let image_row_length = 24;
+
+    for y in 0..<image_height {
+        for x in 0..<image_height {
+            if ((image_bitmap[(x>>3) + y*image_row_length]>>(~x&0x7)) & 1) == 0 {
+                continue
+            }
+            var x_jitter = cpFloat(0.05 * cpFloat(rand()) / cpFloat(RAND_MAX))
+            var y_jitter = cpFloat(0.05 * cpFloat(rand()) / cpFloat(RAND_MAX))
+
+            body = cpBodyNew(1.0, cpFloat(Double.infinity))
+            cpBodySetPosition(body, cpv(cpFloat(x), cpFloat(y)))
+            shape = cpCircleShapeNew(body, 0.95, cpvzero)
+            cpShapeSetElasticity(shape, 0.0)
+            cpShapeSetFriction(shape, 0.0)
+            cpSpaceAddBody(space, body)
+            cpSpaceAddShape(space, shape)
+
+            bodyCount += 1
+            // (cpFloat)rand()/(cpFloat)RAND_MAX
+        }
+    }
 
 //   // cpVect is a 2D vector and cpv() is a shortcut for initializing them.
 //   var gravity = cpv(0, -1);
@@ -166,3 +191,11 @@ func LogoSmash() throws {
 //   cpShapeFree(ground);
 //   cpSpaceFree(space);
 }
+
+func ShapeFreeWrap(space: UnsafeMutablePointer<cpSpace>,
+    shape: UnsafeMutablePointer<cpShape>, unused: UnsafeMutableRawPointer) {
+        cpSpaceRemoveShape(space, shape)
+        cpShapeFree(shape)
+}
+
+func ConstraintFreeWrap
