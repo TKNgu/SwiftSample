@@ -31,6 +31,14 @@ func chip() throws {
         running = false
     }
 
+    var ddpi: Float = 0
+    var hdpi: Float = 0
+    var vdpi: Float = 0
+    SDL_GetDisplayDPI(0, &ddpi, &hdpi, &vdpi)
+    print("DPI \(ddpi) \(hdpi) \(vdpi)")
+    SDL_GetDisplayDPI(1, &ddpi, &hdpi, &vdpi)
+    print("DPI \(ddpi) \(hdpi) \(vdpi)")
+
   // cpVect is a 2D vector and cpv() is a shortcut for initializing them.
   var gravity = cpv(0, -1);
   
@@ -93,7 +101,7 @@ func chip() throws {
 
         var pos = cpBodyGetPosition(ballBody);
         var vel = cpBodyGetVelocity(ballBody);
-        print("Time is \(time). ballBody is at (\(pos.x), \(pos.y)). It's velocity is (\(vel.x), \(vel.y))")
+        // print("Time is \(time). ballBody is at (\(pos.x), \(pos.y)). It's velocity is (\(vel.x), \(vel.y))")
         
         cpSpaceStep(space, timeStep);
 
@@ -135,4 +143,4 @@ func chip() throws {
   cpSpaceFree(space);
 }
 
-try chip()
+try LogoSmash()
