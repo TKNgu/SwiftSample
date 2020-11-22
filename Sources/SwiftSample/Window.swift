@@ -20,6 +20,10 @@ class Window: RenderTarget {
     let screenTexture: OpaquePointer?
     var view: SDL_Rect
 
+    func draw(drawable: Drawable, renderstates: RenderStates) {
+        SDL_RenderCopy(self.screenTexture, drawable.texture, nil, nil);
+    }
+
     init(name: String, rect: Rect, flag: SDL_WindowFlags) throws {
         Window.count += 1
         if Window.count == 1 {

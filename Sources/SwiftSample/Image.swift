@@ -10,7 +10,13 @@ class Image: Drawable {
     var path: String?
     var image: UnsafeMutablePointer<SDL_Surface>? = nil
     var isLoaded: Bool = false
-    var texture: OpaquePointer? = nil
+    var textureSDL: OpaquePointer? = nil
+
+    var texture: Texture? {
+        get {
+            return self.textureSDL
+        }
+    }
 
     init(path: String? = nil) {
         self.path = path
@@ -39,7 +45,18 @@ class Image: Drawable {
         }
         SDL_FreeSurface(self.image)
         self.image = nil
-        self.texture = texture
+        self.textureSDL = texture
+        return self
+    }
+
+    func optimized(renderer: OpaquePointer) throws -> (Image) {
+        let texture = SDL_CreateTextureFromSurface(renderer, self.image);
+        if texture == nil {
+            throw ImageError.optimized
+        }
+        SDL_FreeSurface(self.image)
+        self.image = nil
+        self.textureSDL = texture
         return self
     }
 
@@ -50,10 +67,10 @@ class Image: Drawable {
         SDL_DestroyTexture(self.texture)
     }
 
-    func draw(target: RenderTarget, state: RenderStates) {
-        // SDL_RenderCopy(target.getTexture(), self.texture, nil, nil)
-        SDL_RenderCopyEx(target.getTexture(), self.texture, nil, nil, 90, nil, SDL_FLIP_VERTICAL)
-    }
+    // func draw(target: RenderTarget, state: RenderStates) {
+    //     // SDL_RenderCopy(target.getTexture(), self.texture, nil, nil)
+    //     SDL_RenderCopyEx(target.getTexture(), self.texture, nil, nil, 90, nil, SDL_FLIP_VERTICAL)
+    // }
 }
 
 // extension Window {

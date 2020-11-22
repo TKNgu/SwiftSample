@@ -1,4 +1,8 @@
 
+typealias Texture = OpaquePointer
+
 protocol Drawable {
-    func draw(target: RenderTarget, state: RenderStates)
+    var texture: Texture? {
+        get
+    }
 }
