@@ -1,3 +1,3 @@
 protocol RenderTarget {
-    func getTexture() -> OpaquePointer?
+    func draw(drawable: Drawable, renderstates: RenderStates)
 }

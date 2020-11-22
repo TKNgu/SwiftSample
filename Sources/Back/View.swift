@@ -9,6 +9,10 @@ class View: RenderTarget {
         self.screenTexture = screenTexture
     }
 
+    func draw(drawable: Drawable, renderstates: RenderStates) {
+
+    }
+
     func getTexture() -> OpaquePointer? {
         SDL_RenderSetViewport(self.screenTexture, &self.rect)
         return self.screenTexture
