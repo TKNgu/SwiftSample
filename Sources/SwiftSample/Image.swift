@@ -1,86 +1,41 @@
 import SwiftSDL2
 
 enum ImageError: Error {
-    case pathNil
-    case load
-    case optimized
+    case loadSurface
+    case convertTexture
 }
 
-class Image: Drawable {
-    var path: String?
-    var image: UnsafeMutablePointer<SDL_Surface>? = nil
-    var isLoaded: Bool = false
-    var textureSDL: OpaquePointer? = nil
+class Image {
+    var texture: OpaquePointer
+    var rect: SDL_Rect
+    
+    init(path: String, window: Window) throws {
+        guard let surface = UnsafeMutablePointer<SDL_Surface>(IMG_Load(path)) else {
+            throw ImageError.loadSurface
+        }
+        self.texture = SDL_CreateTextureFromSurface(window.renderer, surface)
+        SDL_FreeSurface(surface)
+        if Int(bitPattern: self.texture) == 0 {
+            throw ImageError.convertTexture
+        }
 
-    var texture: Texture? {
-        get {
-            return self.textureSDL
-        }
-    }
-
-    init(path: String? = nil) {
-        self.path = path
-    }
-
-    func load(path: String? = nil) throws -> Image {
-        if let tmp = path {
-            self.path = tmp
-        }
-        guard let path = self.path else {
-            throw ImageError.pathNil
-        }
-        self.image = UnsafeMutablePointer<SDL_Surface>(IMG_Load(path))
-        if self.image == nil {
-            self.isLoaded = false
-            throw ImageError.load
-        }
-        self.isLoaded = true
-        return self
-    }
-
-    func optimized(window: Window) throws -> (Image) {
-        let texture = SDL_CreateTextureFromSurface(window.screenTexture, self.image);
-        if texture == nil {
-            throw ImageError.optimized
-        }
-        SDL_FreeSurface(self.image)
-        self.image = nil
-        self.textureSDL = texture
-        return self
-    }
-
-    func optimized(renderer: OpaquePointer) throws -> (Image) {
-        let texture = SDL_CreateTextureFromSurface(renderer, self.image);
-        if texture == nil {
-            throw ImageError.optimized
-        }
-        SDL_FreeSurface(self.image)
-        self.image = nil
-        self.textureSDL = texture
-        return self
+        var w = Int32(0)
+        var h = Int32(0)
+        SDL_QueryTexture(self.texture, nil, nil, &w, &h)
+        self.rect = SDL_Rect(x: 0, y: 0, w: w, h: h)
     }
 
     deinit {
-        if self.image == nil {
-            SDL_FreeSurface(self.image)
-        }
         SDL_DestroyTexture(self.texture)
     }
-
-    // func draw(target: RenderTarget, state: RenderStates) {
-    //     // SDL_RenderCopy(target.getTexture(), self.texture, nil, nil)
-    //     SDL_RenderCopyEx(target.getTexture(), self.texture, nil, nil, 90, nil, SDL_FLIP_VERTICAL)
-    // }
 }
 
-// extension Window {
-//     func drawImage(image: Image) {
-//         SDL_RenderCopy(self.screenTexture, image.texture, nil, nil);
-//     }
-// }
-
-// extension View {
-//     func drawImage(image: Image) {
-//         SDL_RenderSetViewport(self.screenTexture, &self.rect)       
-//     }
-// }
+extension Window {
+    func draw(image: Image, src: inout SDL_Rect, dst: inout SDL_Rect) {
+        draw(texture: image.texture, src: &src, dst: &dst)
+    }
+    
+    func draw(image: Image, src: inout SDL_Rect, dst: inout SDL_Rect, angle: Double, center: inout SDL_Point, flip: SDL_RendererFlip) {
+        draw(texture: image.texture, src: &src, dst: &dst, angle: angle, center: &center, flip: flip)
+    }
+}

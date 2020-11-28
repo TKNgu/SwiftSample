@@ -1,30 +1,57 @@
+import SwiftSDL2
+
+enum SDLWindowError: Error {
+    case initWindow
+    case initRenderer
+}
+
+enum SDL_WINDOWPOS: Int32 {
+    case CENTERED = 0x1FFF0000
+    case UNDEFINED = 0
+}
+
 class Window {
-    var name: String
-    var rect: Rect
+    var rect: SDL_Rect
+    var window: OpaquePointer? = nil
+    var renderer: OpaquePointer? = nil
 
-    func draw(drawable: Drawable, renderstates: RenderStates) {
-        SDL_RenderCopy(self.screenTexture, drawable.texture, nil, nil);
-    }
-
-    init(name: String, rect: Rect, flag: SDL_WindowFlags) throws {
-        Window.count += 1
-        if Window.count == 1 {
-            if SDL_Init(SDL_INIT_VIDEO) < 0 {
-                throw SDLError.initVideo
-            }
-            let imgFlags: IMG_InitFlags = IMG_INIT_PNG
-            if (IMG_Init(Int32(imgFlags.rawValue)) & Int32(imgFlags.rawValue)) == 0 {
-                throw SDLError.initImage
-            }
-            if (TTF_Init() == -1) {
-                throw SDLError.initTTF
-            }
-        }
-        self.view = SDL_Rect(x: Int32(rect.w / 2), y: Int32(rect.h / 2), w: Int32(rect.w / 2), h: Int32(rect.h / 2))
-        self.name = name
+    init(name: String, rect: SDL_Rect, flags: SDL_WindowFlags) throws {
         self.rect = rect
+        self.window = SDL_CreateWindow(name,
+            self.rect.x, self.rect.y, self.rect.w, self.rect.h,
+            flags.rawValue)
+        if self.window == nil {
+            throw SDLWindowError.initWindow
+        }
+        self.renderer = SDL_CreateRenderer(self.window, -1,
+            SDL_RENDERER_ACCELERATED.rawValue | SDL_RENDERER_PRESENTVSYNC.rawValue)
+        if self.renderer == nil {
+            throw SDLWindowError.initRenderer
+        }
     }
 
-    func clean() { }
-    func draw() { }
+    deinit {
+        if self.renderer == nil {
+            SDL_DestroyRenderer(self.renderer)
+        }
+        if self.window == nil {
+            SDL_DestroyWindow(self.window)
+        }
+    }
+
+    func draw(texture: OpaquePointer, src: inout SDL_Rect, dst: inout SDL_Rect) {
+        SDL_RenderCopy(self.renderer, texture, &src, &dst)
+    }
+
+    func draw(texture: OpaquePointer, src: inout SDL_Rect, dst: inout SDL_Rect, angle: Double, center: inout SDL_Point, flip: SDL_RendererFlip) {
+        SDL_RenderCopyEx(self.renderer, texture, &src, &dst, angle, &center, flip)
+    }
+
+    func clean() {
+        SDL_RenderClear(self.renderer)
+    }
+
+    func present() {
+        SDL_RenderPresent(self.renderer)
+    }
 }
