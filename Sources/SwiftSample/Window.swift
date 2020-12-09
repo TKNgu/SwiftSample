@@ -11,43 +11,29 @@ enum SDL_WINDOWPOS: Int32 {
 }
 
 class Window {
-    var rect: SDL_Rect
-    var window: OpaquePointer? = nil
-    var renderer: OpaquePointer? = nil
+    let window: OpaquePointer
+    let renderer: OpaquePointer
 
-    init(name: String, rect: SDL_Rect, flags: SDL_WindowFlags) throws {
-        self.rect = rect
-        self.window = SDL_CreateWindow(name,
-            self.rect.x, self.rect.y, self.rect.w, self.rect.h,
-            flags.rawValue)
-        if self.window == nil {
+    init(name: String, rect: SDL_Rect, flag: SDL_WindowFlags) throws {
+        guard let window = SDL_CreateWindow(name,
+            rect.x, rect.y, rect.w, rect.h, flag.rawValue) else {
             throw SDLWindowError.initWindow
         }
-        self.renderer = SDL_CreateRenderer(self.window, -1,
-            SDL_RENDERER_ACCELERATED.rawValue | SDL_RENDERER_PRESENTVSYNC.rawValue)
-        if self.renderer == nil {
+        self.window = window
+        guard let renderer = SDL_CreateRenderer(self.window, -1,
+            SDL_RENDERER_ACCELERATED.rawValue | SDL_RENDERER_PRESENTVSYNC.rawValue) else {
+            SDL_DestroyWindow(self.window)
             throw SDLWindowError.initRenderer
         }
+        self.renderer = renderer
     }
 
     deinit {
-        if self.renderer == nil {
-            SDL_DestroyRenderer(self.renderer)
-        }
-        if self.window == nil {
-            SDL_DestroyWindow(self.window)
-        }
+        SDL_DestroyRenderer(self.renderer)
+        SDL_DestroyWindow(self.window)
     }
 
-    func draw(texture: OpaquePointer, src: inout SDL_Rect, dst: inout SDL_Rect) {
-        SDL_RenderCopy(self.renderer, texture, &src, &dst)
-    }
-
-    func draw(texture: OpaquePointer, src: inout SDL_Rect, dst: inout SDL_Rect, angle: Double, center: inout SDL_Point, flip: SDL_RendererFlip) {
-        SDL_RenderCopyEx(self.renderer, texture, &src, &dst, angle, &center, flip)
-    }
-
-    func clean() {
+    func clear() {
         SDL_RenderClear(self.renderer)
     }
 

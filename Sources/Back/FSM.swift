@@ -1,23 +1,27 @@
 class FSM {
     var states: [GameState] = []
 
-    func pushState(state: GameState) throws {
-        if let last = self.states.last {
-            last.onPause()
-        }
-        try state.onEnter()
-        state.onResume()
-        self.states.append(state)
+    func change(state: GameState) {
+        self.pop()
+        add(state: state)
     }
 
-    func popState() {
-        if let last = self.states.last {
-            last.onPause()
-            last.onExit()
-            _ = self.states.popLast()
-        }
+    func push(state: GameState) {
         if let last = self.states.last {
             last.onResume()
         }
+        self.add(state: state)
+    }
+
+    func pop() {
+        if let last = self.states.last {
+            last.onPause()
+            _ = self.states.popLast()
+        }
+    }
+
+    private func add(state: GameState) {
+        state.onResume()
+        self.states.append(state)
     }
 }
