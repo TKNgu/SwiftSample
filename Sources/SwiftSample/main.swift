@@ -49,12 +49,18 @@ do {
     let window = try Window(name: NAME, rect: RECT, flag: SDL_WINDOW_SHOWN)
     let texture = try Texture(renderer: window.renderer, path: "Data/Title.png")
 
-    let background = GameObject(sprite: Sprite(texture: texture, src: SDL_Rect(x: 0, y: 0, w: 160, h: 320)),
+
+    var gameObjects: [GameObject] = []
+
+    let background = GameBlock(sprite: Sprite(texture: texture, src: SDL_Rect(x: 0, y: 0, w: 160, h: 320)),
         dst: SDL_Rect(x: 0, y: 0, w: 320, h: 640))
-    let lineScore = GameObject(sprite: Sprite(texture: texture, src: SDL_Rect(x: 160, y: 0, w: 160, h: 16)),
+    gameObjects.append(background)
+    let lineScore = GameBlock(sprite: Sprite(texture: texture, src: SDL_Rect(x: 160, y: 0, w: 160, h: 16)),
         dst: SDL_Rect(x: 0, y: 0, w: 320, h: 32))
-    let blockO = GameObject(sprite: Sprite(texture: texture, src: SDL_Rect(x: 160, y: 16, w: 32, h: 32)),
+    gameObjects.append(lineScore)
+    let blockO = GameBlock(sprite: Sprite(texture: texture, src: SDL_Rect(x: 160, y: 16, w: 32, h: 32)),
         dst: SDL_Rect(x: 32, y: 32, w: 64, h: 64))
+    gameObjects.append(blockO)
 
     var isRunning = true
     var endTime = SDL_GetTicks()
@@ -62,9 +68,8 @@ do {
     while isRunning {
         isRunning = Input()
         window.clear()
-        window.draw(gameObject: background)
-        window.draw(gameObject: lineScore)
-        window.draw(gameObject: blockO)
+        for gameObject in gameObjects {
+            gameObject.draw(window: window)        }
         window.present()
         Delay(startTime: &startTime, endTime: &endTime)
     }
