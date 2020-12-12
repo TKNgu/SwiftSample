@@ -5,7 +5,7 @@ let NAME = "Sample"
 let RECT = SDL_Rect(
     x: SDL_WINDOWPOS.CENTERED.rawValue,
     y: SDL_WINDOWPOS.CENTERED.rawValue,
-    w: 640, h: 480)
+    w: 640, h: 640)
 
 func InitSDL2() {
     if SDL_Init(SDL_INIT_VIDEO) < 0 {
@@ -31,44 +31,45 @@ func Delay(startTime: inout UInt32, endTime: inout UInt32) {
     }
 }
 
-func Input() -> Bool {
-    var event = SDL_Event(type: UInt32(0))
-    while SDL_PollEvent(&event) != 0{
-        switch event.type {
-            case SDL_QUIT.rawValue:
-                return false
-            default:
-                break
-            }
-        }
-    return true
-}
-
 InitSDL2()
 do {
     let window = try Window(name: NAME, rect: RECT, flag: SDL_WINDOW_SHOWN)
     let texture = try Texture(renderer: window.renderer, path: "Data/Title.png")
 
-
     var gameObjects: [GameObject] = []
-
-    let background = GameBlock(sprite: Sprite(texture: texture, src: SDL_Rect(x: 0, y: 0, w: 160, h: 320)),
-        dst: SDL_Rect(x: 0, y: 0, w: 320, h: 640))
+    let background = BackGround(texture: texture)
     gameObjects.append(background)
-    let lineScore = GameBlock(sprite: Sprite(texture: texture, src: SDL_Rect(x: 160, y: 0, w: 160, h: 16)),
-        dst: SDL_Rect(x: 0, y: 0, w: 320, h: 32))
-    gameObjects.append(lineScore)
-    let blockO = GameBlock(sprite: Sprite(texture: texture, src: SDL_Rect(x: 160, y: 16, w: 32, h: 32)),
-        dst: SDL_Rect(x: 32, y: 32, w: 64, h: 64))
-    gameObjects.append(blockO)
+
+    let tetromino = Tetromino(texture: texture)
+    tetromino.move = Location(x: 5, y: 5)
+    gameObjects.append(tetromino)
+    InputHandler.instance.keyMapDown[SDL_SCANCODE_UP.rawValue] = {
+        tetromino.move.y += 1
+    }
+    InputHandler.instance.keyMapDown[SDL_SCANCODE_LEFT.rawValue] = {
+        tetromino.move.x -= 1
+    }
+    InputHandler.instance.keyMapDown[SDL_SCANCODE_RIGHT.rawValue] = {
+        tetromino.move.x += 1
+    }
+    InputHandler.instance.keyMapDown[SDL_SCANCODE_DOWN.rawValue] = {
+        tetromino.move.y -= 1
+    }
+
+    let gamelogic = GameLogic(tetromino: tetromino, background: background)
 
     var isRunning = true
+    InputHandler.instance.quit = {
+        isRunning = false
+    }
     var endTime = SDL_GetTicks()
     var startTime = endTime
     while isRunning {
-        isRunning = Input()
+        InputHandler.instance.update()
+        gamelogic.update()
         window.clear()
         for gameObject in gameObjects {
+            gameObject.update()
             gameObject.draw(window: window)        }
         window.present()
         Delay(startTime: &startTime, endTime: &endTime)

@@ -9,6 +9,10 @@ class GameObjectSingle: GameObject {
         self.dst = dst
     }
 
+    func update() {
+        //TODO
+    }
+
     func draw(window: Window) {
         withUnsafePointer(to: &self.dst, {(dst: UnsafePointer<SDL_Rect>) in
             window.draw(sprite: self.sprite, dst: dst)
