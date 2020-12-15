@@ -37,27 +37,37 @@ do {
     let texture = try Texture(renderer: window.renderer, path: "Data/Title.png")
     let textureTitle = try Texture(renderer: window.renderer, path: "Data/Tetromino.png")
 
-
     var gameObjects: [GameObject] = []
-
     let background = BackGround(texture: texture)
     gameObjects.append(background)
-    let tetromino = Tetromino(texture: textureTitle)
+
+    let tetromino = Tetromino(texture: texture)
+    tetromino.move = Location(x: 5, y: 5)
     gameObjects.append(tetromino)
+    InputHandler.instance.keyMapDown[SDL_SCANCODE_UP.rawValue] = {
+        tetromino.move.y += 1
+    }
+    InputHandler.instance.keyMapDown[SDL_SCANCODE_LEFT.rawValue] = {
+        tetromino.move.x -= 1
+    }
+    InputHandler.instance.keyMapDown[SDL_SCANCODE_RIGHT.rawValue] = {
+        tetromino.move.x += 1
+    }
+    InputHandler.instance.keyMapDown[SDL_SCANCODE_DOWN.rawValue] = {
+        tetromino.move.y -= 1
+    }
+
+    let gamelogic = GameLogic(tetromino: tetromino, background: background)
 
     var isRunning = true
-    Input.instance.quit = {
+    InputHandler.instance.quit = {
         isRunning = false
     }
-    Input.instance.keyMapDown[SDL_SCANCODE_RIGHT.rawValue] = tetromino.right
-    Input.instance.keyMapDown[SDL_SCANCODE_LEFT.rawValue] = tetromino.left
-    Input.instance.keyMapDown[SDL_SCANCODE_DOWN.rawValue] = tetromino.down
-    Input.instance.keyMapDown[SDL_SCANCODE_UP.rawValue] = tetromino.rotate
-
     var endTime = SDL_GetTicks()
     var startTime = endTime
     while isRunning {
-        Input.instance.update()
+        InputHandler.instance.update()
+        gamelogic.update()
         window.clear()
         for gameObject in gameObjects {
             gameObject.update()
