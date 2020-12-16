@@ -29,7 +29,10 @@ class BackGround: GameObject {
     }
 
     func checkBlock(location: Location) -> Bool {
-        return self.cacheLocation[location.y][location.x]
+        if location.x < 0 || location.x > 9 || location.y <= 0 {
+            return true
+        }
+        return self.cacheLocation[location.y - 1][location.x]
     }
 
     func update() {

@@ -14,10 +14,7 @@ class GameLogic {
     }
 
     func checkMove() {
-        var flag = true
-        flag = flag && self.tetromino.move.x >= 0 && self.tetromino.move.x <= 9
-        flag = flag && !self.background.checkBlock(location: self.tetromino.move)
-        if flag {
+        if !self.background.checkBlock(location: self.tetromino.move) {
             self.tetromino.appline()
         } else {
             self.tetromino.move = self.tetromino.location
@@ -29,14 +26,14 @@ class GameLogic {
             self.tetromino.speed()
             self.lastTime += SPEED
         }
-        if self.tetromino.move.y <= 0 || self.background.checkBlock(location: self.tetromino.move){
+        if self.background.checkBlock(location: self.tetromino.move) {
             self.background.add(block: GameBlock(block: self.tetromino.block))
             self.tetromino.reset()
         }
     }
 
     func update() {
-        checkMove()
         checkEnd()
+        checkMove()
     }
 }
