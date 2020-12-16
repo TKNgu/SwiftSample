@@ -35,7 +35,6 @@ InitSDL2()
 do {
     let window = try Window(name: NAME, rect: RECT, flag: SDL_WINDOW_SHOWN)
     let texture = try Texture(renderer: window.renderer, path: "Data/Title.png")
-    let textureTitle = try Texture(renderer: window.renderer, path: "Data/Tetromino.png")
 
     var gameObjects: [GameObject] = []
     let background = BackGround(texture: texture)
@@ -44,18 +43,10 @@ do {
     let tetromino = Tetromino(texture: texture)
     tetromino.move = Location(x: 5, y: 5)
     gameObjects.append(tetromino)
-    InputHandler.instance.keyMapDown[SDL_SCANCODE_UP.rawValue] = {
-        tetromino.move.y += 1
-    }
-    InputHandler.instance.keyMapDown[SDL_SCANCODE_LEFT.rawValue] = {
-        tetromino.move.x -= 1
-    }
-    InputHandler.instance.keyMapDown[SDL_SCANCODE_RIGHT.rawValue] = {
-        tetromino.move.x += 1
-    }
-    InputHandler.instance.keyMapDown[SDL_SCANCODE_DOWN.rawValue] = {
-        tetromino.move.y -= 1
-    }
+    InputHandler.instance.keyMapDown[SDL_SCANCODE_UP.rawValue] = tetromino.rotate
+    InputHandler.instance.keyMapDown[SDL_SCANCODE_LEFT.rawValue] = tetromino.moveLeft
+    InputHandler.instance.keyMapDown[SDL_SCANCODE_RIGHT.rawValue] = tetromino.moveRight
+    InputHandler.instance.keyMapDown[SDL_SCANCODE_DOWN.rawValue] = tetromino.speed
 
     let gamelogic = GameLogic(tetromino: tetromino, background: background)
 
