@@ -13,27 +13,28 @@ class GameLogic {
         self.lastTime = SDL_GetTicks()
     }
 
-    func checkMove() {
-        if !self.background.checkBlock(location: self.tetromino.move) {
-            self.tetromino.appline()
-        } else {
+    func update() {
+        if self.tetromino.isMove {
+            self.tetromino.isMove = false
+            if !self.background.checkBlock(location: self.tetromino.move) {
+                self.tetromino.appline()
+                return
+            }
             self.tetromino.move = self.tetromino.location
         }
-    }
-
-    func checkEnd() {
         if (SDL_GetTicks() - self.lastTime) >= SPEED {
             self.tetromino.speed()
             self.lastTime += SPEED
         }
-        if self.background.checkBlock(location: self.tetromino.move) {
-            self.background.add(block: GameBlock(block: self.tetromino.block))
-            self.tetromino.reset()
+        if !self.tetromino.isDown {
+            return
         }
-    }
-
-    func update() {
-        checkEnd()
-        checkMove()
+        self.tetromino.isDown = false
+        if !self.background.checkBlock(location: self.tetromino.move) {
+            self.tetromino.appline()
+            return
+        }
+        self.background.add(block: GameBlock(block: self.tetromino.block))
+        self.tetromino.reset()
     }
 }
